@@ -1,6 +1,6 @@
 # JSON Placeholder API Application
 
-This is a Spring Boot application that provides a RESTful API for managing users and their data.
+This is a Spring Boot application that provides a RESTful API for managing users and their data, using seed data from JSONPlaceholder.
 
 ## Prerequisites
 
@@ -112,15 +112,3 @@ The following environment variables can be configured:
 - `SERVER_PORT` - Server port (default: 8080)
 - `JWT_SECRET` - Secret key for JWT token generation
 - `JWT_EXPIRATION` - JWT token expiration time in milliseconds
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

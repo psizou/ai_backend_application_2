@@ -18,15 +18,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @WebMvcTest(UserController.class)
 @Import(TestSecurityConfig.class)
 class UserControllerTest {
 
   @Autowired private MockMvc mockMvc;
-
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private UserService userService;
@@ -34,13 +35,17 @@ class UserControllerTest {
   @MockBean private JwtTokenProvider jwtTokenProvider;
 
   @BeforeEach
-  void setUp() {
-    // Set up any common test data or mocks here
+  void setup() {
+    mockMvc =
+        MockMvcBuilders.standaloneSetup(new UserController(userService))
+            .setMessageConverters(new MappingJackson2HttpMessageConverter())
+            .build();
   }
 
   @Test
   @WithMockUser
   void getAllUsers_ShouldReturnUsers() throws Exception {
+    // Given
     User user1 = new User();
     user1.setId(1L);
     user1.setName("John Doe");
@@ -55,9 +60,11 @@ class UserControllerTest {
 
     when(userService.getAllUsers()).thenReturn(Arrays.asList(user1, user2));
 
+    // When & Then
     mockMvc
-        .perform(get("/api/users").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/users").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id").value(1))
         .andExpect(jsonPath("$[0].name").value("John Doe"))
         .andExpect(jsonPath("$[1].id").value(2))
@@ -67,6 +74,7 @@ class UserControllerTest {
   @Test
   @WithMockUser
   void getUserById_ShouldReturnUser() throws Exception {
+    // Given
     User user = new User();
     user.setId(1L);
     user.setName("John Doe");
@@ -75,9 +83,11 @@ class UserControllerTest {
 
     when(userService.getUserById(1L)).thenReturn(user);
 
+    // When & Then
     mockMvc
-        .perform(get("/api/users/1").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/users/1").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(1))
         .andExpect(jsonPath("$.name").value("John Doe"))
         .andExpect(jsonPath("$.email").value("john@example.com"))

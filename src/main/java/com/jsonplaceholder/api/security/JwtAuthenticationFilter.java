@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+  private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
   private final JwtTokenProvider tokenProvider;
   private final CustomUserDetailsService userDetailsService;
 
@@ -31,10 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     try {
       String jwt = getJwtFromRequest(request);
+      logger.debug("JWT token from request: {}", jwt != null ? "present" : "absent");
 
       if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
         String username = tokenProvider.getUsernameFromToken(jwt);
+        logger.debug("Username from token: {}", username);
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        logger.debug("User details loaded: {}", userDetails.getUsername());
 
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(
@@ -42,6 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        logger.debug("Authentication set in SecurityContext");
+      } else {
+        logger.debug("JWT token validation failed or token is empty");
       }
     } catch (Exception ex) {
       logger.error("Could not set user authentication in security context", ex);

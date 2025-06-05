@@ -1,8 +1,9 @@
 package com.jsonplaceholder.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.ZonedDateTime;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -13,33 +14,32 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotBlank(message = "Name is required")
+  @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
   @Column(nullable = false)
   private String name;
 
+  @NotBlank(message = "Username is required")
+  @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
   @Column(nullable = false, unique = true)
   private String username;
 
+  @NotBlank(message = "Email is required")
+  @Email(message = "Email should be valid")
   @Column(nullable = false, unique = true)
   private String email;
 
-  @JsonIgnore
-  @Column(nullable = false)
-  private String password;
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "address_id", referencedColumnName = "id")
+  private Address address;
 
-  @Column(name = "created_at")
-  private ZonedDateTime createdAt;
+  @Size(max = 20, message = "Phone number must not exceed 20 characters")
+  private String phone;
 
-  @Column(name = "updated_at")
-  private ZonedDateTime updatedAt;
+  @Size(max = 100, message = "Website must not exceed 100 characters")
+  private String website;
 
-  @PrePersist
-  protected void onCreate() {
-    createdAt = ZonedDateTime.now();
-    updatedAt = ZonedDateTime.now();
-  }
-
-  @PreUpdate
-  protected void onUpdate() {
-    updatedAt = ZonedDateTime.now();
-  }
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "company_id", referencedColumnName = "id")
+  private Company company;
 }
