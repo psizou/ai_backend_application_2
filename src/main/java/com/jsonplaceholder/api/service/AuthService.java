@@ -64,7 +64,7 @@ public class AuthService {
     logger.debug("User created with ID: {}", user.getId());
 
     Auth auth = new Auth();
-    auth.setName(registerRequest.getUsername());
+    auth.setUsername(registerRequest.getUsername());
     auth.setEmail(registerRequest.getEmail());
     auth.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
     auth.setUser(user);

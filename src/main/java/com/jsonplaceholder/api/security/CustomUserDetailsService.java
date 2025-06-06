@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     try {
       Auth auth =
           authRepository
-              .findByName(username)
+              .findByUsername(username)
               .orElseThrow(
                   () -> {
                     logger.error("User not found with username: {}", username);
@@ -37,7 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
       logger.debug("Found auth record for user: {}", username);
 
       UserDetails userDetails =
-          org.springframework.security.core.userdetails.User.withUsername(auth.getName())
+          org.springframework.security.core.userdetails.User.withUsername(auth.getUsername())
               .password(auth.getPasswordHash())
               .authorities("USER")
               .accountExpired(false)

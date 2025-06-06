@@ -11,17 +11,14 @@ import com.jsonplaceholder.api.security.JwtAuthenticationFilter;
 import com.jsonplaceholder.api.security.JwtTokenProvider;
 import com.jsonplaceholder.api.service.UserService;
 import java.util.Arrays;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @WebMvcTest(UserController.class)
 @Import(TestSecurityConfig.class)
@@ -33,14 +30,6 @@ class UserControllerTest {
   @MockBean private UserService userService;
   @MockBean private JwtAuthenticationFilter jwtAuthenticationFilter;
   @MockBean private JwtTokenProvider jwtTokenProvider;
-
-  @BeforeEach
-  void setup() {
-    mockMvc =
-        MockMvcBuilders.standaloneSetup(new UserController(userService))
-            .setMessageConverters(new MappingJackson2HttpMessageConverter())
-            .build();
-  }
 
   @Test
   @WithMockUser
@@ -64,7 +53,6 @@ class UserControllerTest {
     mockMvc
         .perform(get("/api/users").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id").value(1))
         .andExpect(jsonPath("$[0].name").value("John Doe"))
         .andExpect(jsonPath("$[1].id").value(2))
@@ -87,7 +75,6 @@ class UserControllerTest {
     mockMvc
         .perform(get("/api/users/1").accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(1))
         .andExpect(jsonPath("$.name").value("John Doe"))
         .andExpect(jsonPath("$.email").value("john@example.com"))

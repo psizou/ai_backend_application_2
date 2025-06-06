@@ -1,7 +1,7 @@
 -- Create auth table
 CREATE TABLE auth (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(100) NOT NULL,
     user_id BIGINT REFERENCES users(id)

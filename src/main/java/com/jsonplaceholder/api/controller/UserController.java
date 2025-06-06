@@ -41,12 +41,6 @@ public class UserController {
     return ResponseEntity.ok(userService.getUserById(id));
   }
 
-  @PostMapping
-  public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-    logger.debug("Creating new user: {}", user.getUsername());
-    return ResponseEntity.ok(userService.createUser(user));
-  }
-
   @PutMapping("/{id}")
   @PreAuthorize("authentication.principal.username == @userService.getUserById(#id).username")
   public ResponseEntity<User> updateUser(
