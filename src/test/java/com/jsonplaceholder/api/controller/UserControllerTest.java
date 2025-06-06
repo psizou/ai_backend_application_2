@@ -2,13 +2,14 @@ package com.jsonplaceholder.api.controller;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jsonplaceholder.api.config.TestSecurityConfig;
 import com.jsonplaceholder.api.entity.User;
-import com.jsonplaceholder.api.security.JwtAuthenticationFilter;
-import com.jsonplaceholder.api.security.JwtTokenProvider;
+import com.jsonplaceholder.api.security.CustomUserDetailsService;
+import com.jsonplaceholder.api.security.JwtTokenProvider; // Import this
+import com.jsonplaceholder.api.security.SecurityConfig;
 import com.jsonplaceholder.api.service.UserService;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
@@ -21,15 +22,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@Import(TestSecurityConfig.class)
+@Import(SecurityConfig.class)
 class UserControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private UserService userService;
-  @MockBean private JwtAuthenticationFilter jwtAuthenticationFilter;
-  @MockBean private JwtTokenProvider jwtTokenProvider;
+
+  // Mock all dependencies of SecurityConfig to isolate the web layer
+  @MockBean private CustomUserDetailsService customUserDetailsService;
+  @MockBean private JwtTokenProvider jwtTokenProvider; // The missing mock bean
 
   @Test
   @WithMockUser
@@ -51,12 +54,15 @@ class UserControllerTest {
 
     // When & Then
     mockMvc
-        .perform(get("/api/users").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/api/users").accept(MediaType.APPLICATION_JSON)) // Added accept header for clarity
         .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$[0].id").value(1))
         .andExpect(jsonPath("$[0].name").value("John Doe"))
         .andExpect(jsonPath("$[1].id").value(2))
-        .andExpect(jsonPath("$[1].name").value("Jane Doe"));
+        .andExpect(jsonPath("$[1].name").value("Jane Doe"))
+        .andDo(print());
   }
 
   @Test
@@ -73,11 +79,15 @@ class UserControllerTest {
 
     // When & Then
     mockMvc
-        .perform(get("/api/users/1").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/api/users/1")
+                .accept(MediaType.APPLICATION_JSON)) // Added accept header for clarity
         .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(1))
         .andExpect(jsonPath("$.name").value("John Doe"))
         .andExpect(jsonPath("$.email").value("john@example.com"))
-        .andExpect(jsonPath("$.username").value("johndoe"));
+        .andExpect(jsonPath("$.username").value("johndoe"))
+        .andDo(print());
   }
 }

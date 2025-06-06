@@ -24,29 +24,29 @@ public class UserController {
   }
 
   @GetMapping("/me")
-  public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+  public User getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) { // Return User
     logger.debug("Getting current user for username: {}", userDetails.getUsername());
-    return ResponseEntity.ok(userService.getUserByUsername(userDetails.getUsername()));
+    return userService.getUserByUsername(userDetails.getUsername());
   }
 
   @GetMapping
-  public ResponseEntity<List<User>> getAllUsers() {
+  public List<User> getAllUsers() { // Return List<User>
     logger.debug("Getting all users");
-    return ResponseEntity.ok(userService.getAllUsers());
+    return userService.getAllUsers();
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<User> getUserById(@PathVariable Long id) {
+  public User getUserById(@PathVariable Long id) { // Return User
     logger.debug("Getting user by id: {}", id);
-    return ResponseEntity.ok(userService.getUserById(id));
+    return userService.getUserById(id);
   }
 
   @PutMapping("/{id}")
   @PreAuthorize("authentication.principal.username == @userService.getUserById(#id).username")
-  public ResponseEntity<User> updateUser(
-      @PathVariable Long id, @Valid @RequestBody User userDetails) {
+  public User updateUser(
+      @PathVariable Long id, @Valid @RequestBody User userDetails) { // Return User
     logger.debug("Updating user with id: {}", id);
-    return ResponseEntity.ok(userService.updateUser(id, userDetails));
+    return userService.updateUser(id, userDetails);
   }
 
   @DeleteMapping("/{id}")
